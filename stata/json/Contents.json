@@ -1,0 +1,81 @@
+[{
+	"title": "Installing on Mac",
+	"section": "Installation",
+	"md": "Install-Mac"
+}, {
+	"title": "Installing on Windows",
+	"section": "Installation",
+	"md": "Install-Windows"
+}, {
+	"title": "Window Interface",
+	"section": "Introduction",
+	"md": "Window-Interface"
+}, {
+	"title": "Setting a Default Directory",
+	"section": "Introduction",
+	"md": "Directory"
+}, {
+	"title": "Enter Commands in STATA",
+	"section": "Introduction",
+	"md": "Enter-Command"
+}, {
+	"title": "Input Data",
+	"section": "Data",
+	"md": "Input-Data"
+}, {
+	"title": "Import Data",
+	"section": "Data",
+	"md": "importing"
+}, {
+	"title": "Saving the Dataset",
+	"section": "Data",
+	"md": "Save"
+}, {
+	"title": "Viewing the Data",
+	"section": "Data",
+	"md": "Viewing-the-Data"
+}, {
+	"title": "Data types in Stata",
+	"section": "Data",
+	"md": "Data-Types"
+}, {
+	"title": "Descriptive Statistics",
+	"section": "Descriptive",
+	"md": "Descriptive-Statistics"
+}, {
+	"title": "Summarize Data",
+	"section": "Descriptive",
+	"md": "summarize"
+}, {
+	"title": "Generating new variables",
+	"section": "Variables",
+	"md": "Generating-Variables"
+}, {
+	"title": "Formatting variables",
+	"section": "Variables",
+	"md": "Formatting-Variables"
+}, {
+	"title": "Renaming and Labeling Variables and Values",
+	"section": "Variables",
+	"md": "labeling"
+}, {
+	"title": "Labeling variables and variable values",
+	"section": "Variables",
+	"md": "Labeling-Variables"
+}, {
+	"title": "Using Log Files",
+	"section": "Logging",
+	"md": "Log-FIles"
+}, {
+	"title": "Logging Stata Output",
+	"section": "Logging",
+	"md": "logging"
+}, {
+	"title": "DoFile Ideal Structure",
+	"section": "DoFile",
+	"md": "ideal"
+}, {
+	"title": "Graphing Data",
+	"section": "Graphing",
+	"md": "graphing"
+}]
