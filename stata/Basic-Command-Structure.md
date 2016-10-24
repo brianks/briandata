@@ -76,7 +76,7 @@ Example
 
 ```cpp
 // Read in the data
-insheet using https://dl.dropboxusercontent.com/u/77237437/stata/toy_data.csv, clear
+insheet using toy_data.csv, clear
 
 // Summarize height for males 
 summarize ht if sex==”M”
