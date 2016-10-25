@@ -2,9 +2,6 @@
 
 For the purpose of this introductory cookbook, we use one command only: summarize. This comamnd provides basic descriptive statitics for one or more variables in your dataset, including the number of observations, their mean value and standard deviation, as well as the largest and smallest value.
 
-All examples are based on the Kyrgyz household survey, and particularly the POVERTY.dta dataset.
-
-
 ## USING ONE OR MORE VARIABLES 
 
 Most commands can be applied to one or more variables. To apply the command to ALL variables, enter the command only:
