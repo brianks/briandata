@@ -1,7 +1,10 @@
+/* This do file can be found at http://students.washington.edu/chutter/Intro_to_STATA/Session1.do */
+/* created by Carolyn Hutter, September25, 2007 */
+
 /* close any open log file and open a new one.  Note, the capture command allows the do file to proceed even if the line would produce an error.  In this situation, it will close an open log if there is one, but will proceed to the next step if no log was open */
 capture log close
 log using descriptives.log, replace
-insheet using toy_data.csv, comma clear
+insheet using http://students.washington.edu/chutter/Intro_to_STATA/toy_data.csv, comma clear
 
 /* In this do file we will explore the data using table, tabulate, summarize and tabstat */
 
@@ -18,7 +21,7 @@ summarize age
 summarize age, detail
 
 tabstat ht
-/* I am introducing format here */
+/* I am introducing format here, we will discuss this command more next week */
 format ht %9.2f 
 tabstat ht, format
 tabstat ht, stat(mean sd p25 p50 p75) format

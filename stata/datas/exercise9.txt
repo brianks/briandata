@@ -1,0 +1,51 @@
+* Exercise 
+* Do the following using STATA: 
+/* (try to do these exercises on your own.  If you get stuck, 
+a list of commands showing one way to do each of these is included in the file
+http://students.washington.edu/chutter/Intro_to_STATA/review_session10_dofile.txt)*/
+
+* 1. Set your default directory
+* cd f:/stataclass
+
+* 2. Start a log file (have it be a text file, rather than a .smcl file)
+capture log close
+log using session9_review.log, replace
+
+/* 3. Open a new do file, and type command in the do file, rather 
+than on the command line.*/
+
+* 4. Open the blood pressure dataset in long form from the class website 
+webuse bplong, clear
+
+* 5. Perform a two-sample unpaired t-test comparing before and after.
+ttest bp, by(when)
+
+* 6. Reshape the data to have the two bp observations per individual in the same row.
+reshape wide bp, i(patient) j(when)
+
+* 7. Perform the paired t-test.  Note the differences between the paired and unpaired t-tests.
+ttest bp1=bp2
+
+* 8. Perform the paired t-test separately for males and females.
+bys sex: ttest bp1=bp2
+
+* 9. Perform the paired t-test separately for people under 45 and for people 46 and over.
+recode agegrp 1=0 2 3=1, gen(over45)
+label define over45_lab 0 "45 and under" 1 "46 and over"
+label values over45 over45_lab
+tab agegrp over45
+bys over45: ttest bp1=bp2
+
+/*10. Make a nice table in Microsoft Word that has the mean, standard deviation, 
+median, 25th% and 75% for blood pressure before and blood pressure after, 
+separately for males and females. Have all numbers rounded to 2 digits 
+after the decimal place. */ 
+tabstat bp1 bp2, stat(n mean sd q) col(stat)  by(sex)  format(%9.2f) long
+/* then use "copy table" in Stata, insert into word and use 
+Table->Convert->Convert Text to Table in Word"*/
+
+* 11. Performed a two-sample unpaired t-test comparing the bp1 value for males and females.
+ttest bp1, by(sex)
+
+* 12. Close your log.
+capture log close

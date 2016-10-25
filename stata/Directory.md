@@ -6,7 +6,7 @@ The `ls` command lets you know what files are available in the default directory
 
 > Create **stataclass** directory and copy the following files to **stataclass** directory:
 
-> www.stata-press.com/data/r10/census.dta
+> census.dta
 
 ```cpp
 cd ["]drive:directory_name["]

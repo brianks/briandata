@@ -1,0 +1,90 @@
+*******************************
+*** session_3_graphs_2.txt  ***
+*******************************
+
+* Created by Carolyn Hutter on October 8th
+* Modified from handout by Ted White
+* Making an increasingly complicated graph
+
+
+* open FEV dataset, note we have to drop the first observation
+infile seqnbr subjid age  fev height sex smoke using ///
+	"http://www.emersonstatistics.com/courses/Formal/b517/fev.txt" ///
+ 	, clear
+drop in 1
+
+* set the scheme so all graphs are s1mono
+set scheme s1mono, perm
+
+
+* scatter plot of height and age
+scatter height age
+
+* scatter plot of height and age with "jitter" to offset points
+scatter height age, jitter(5)
+
+* scatterplot for males and females as two pannels
+scatter height age, jitter(5) by(sex)
+
+* Overlay of scatterplots for males and females, with user defined symbols
+* note: highlight the following three lines
+#delimit ;
+scatter height age if sex==1, jitter(5) msymbol(+) 
+	|| scatter height age if sex==2, jitter(5) msymbol(o);
+
+#delimit cr;
+* improve look of graph by labeling variables
+label variable height "Height in inches"
+label variable age "Age in inches"
+
+#delimit ;
+scatter height age if sex==1, jitter(5) msymbol(s) 
+	|| scatter height age if sex==2, jitter(5) msymbol(o);
+
+* add some titles and captions;
+#delimit ;
+scatter height age if sex==1, jitter(5) msymbol(s) 
+	|| scatter height age if sex==2, jitter(5) msymbol(o)
+	title("here is the title")
+	note("here is a note about something")
+	caption("here is a clever caption")
+	legend(title("Here is the legend title"));
+
+* Have the legend make sense (note, use of subtitle makes legend title smaller);
+#delimit ;
+scatter height age if sex==1, jitter(5) msymbol(s) yvarlabel("Boys")
+	|| scatter height age if sex==2, jitter(5) msymbol(o) yvarlabel("Girls")
+	title("here is the title")
+	ytitle("Here is the Y-axis title")
+	note("here is a note about something")
+	caption("here is a clever caption")
+	legend(subtitle("Legend"));
+
+* Add a lowess curve to both scatterplots.;  
+* note we now need a comma before the title options;
+#delimit ;
+scatter height age if sex==1, jitter(5) msymbol(s) yvarlabel("Boys")
+	|| lowess height age if sex==1
+	|| scatter height age if sex==2, jitter(5) msymbol(o) yvarlabel("Girls")
+	|| lowess height age if sex==2,
+	title("here is the title")
+	ytitle("Here is the Y-axis title")
+	note("here is a note about something")
+	caption("here is a clever caption")
+	legend(subtitle("Legend"));
+
+*add color; 
+
+#delimit ;
+scatter height age if sex==1, jitter(5) msymbol(s) yvarlabel("Boys") mcolor(blue)
+	|| lowess height age if sex==1, lcolor(blue)
+	|| scatter height age if sex==2, jitter(5) msymbol(o) yvarlabel("Girls") mcolor(pink)
+	|| lowess height age if sex==2, lcolor(pink)
+	title("here is the title")
+	ytitle("Here is the Y-axis title")
+	note("here is a note about something")
+	caption("here is a clever caption")
+	legend(subtitle("Legend"));
+
+
+

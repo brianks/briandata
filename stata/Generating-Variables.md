@@ -14,7 +14,7 @@ generate int age2 = age^2 if age > 30
 
 
 // generate variable over50 with value 0
-insheet using http://students.washington.edu/chutter/Intro_to_STATA/toy_data.csv, clear
+insheet using toy_data.csv, clear
 generate over50=0
 ```
 

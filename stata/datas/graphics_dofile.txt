@@ -1,0 +1,44 @@
+*******************************
+*** graphics_dofile.txt  ***
+*******************************
+* Created by Carolyn Hutter on October 8th
+
+* open dataset
+insheet using "http://students.washington.edu/chutter/Intro_to_STATA/toy_data.csv", clear
+* make graphs in black and white
+set scheme s1mono
+
+* Create a scatter plot of age and ht
+graph twoway scatter age ht
+
+* Histogram of height
+histogram ht, bin(5)
+
+* Box plot of mean age over case status
+graph box age, over(case)
+
+* make the graph more informative by labeling the variable case
+label define case 0 "control" 1 "case"
+label values case case
+label variable case "Case/control indicator"
+graph box age, over(case)
+
+* Make graph more informative by adding titles
+graph box age , over(case)	b1title(case status) ytitle(Mean age in years) 	title(Mean age by case status) 
+
+* Box plot of ht,with males and females on same graph
+graph box ht, over(sex)
+* Box plot of ht, with males and females in separate panels
+graph box ht, by(sex)
+* Box plot of ht, with males and females in separate panels and a third panel for the total group *
+graph box ht, by(sex, total)
+* Same graph, but with the three panels in a row
+graph box ht, by(sex, total col(3))
+
+* a more complicated graph. Because of its length, I used #delimit and wrote it over multiple lines.
+#delimit ;
+scatter ht age if sex=="M", jitter(5) msymbol(s) yvarlabel("Males") mcolor(blue)
+	|| lowess ht age if sex=="M", lcolor(blue)
+	|| scatter ht age if sex=="F", jitter(5) msymbol(o) yvarlabel("Females") mcolor(pink)
+	|| lowess ht age if sex=="F", lcolor(pink)
+	title("here is the title") ytitle("Here is the Y-axis title") legend(subtitle("Legend"));

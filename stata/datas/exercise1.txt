@@ -1,0 +1,95 @@
+*1. Set your default directory
+cd "c://stataclass" // Note: you will have a different path in quotes depending on your default directory
+
+* 2. Start a log file (have it be a text file, rather than a smcl file) 
+log using session2_review.txt, text
+
+* 3. Open the dataset toy_data.dta (this is a STATA dataset)
+use "http://students.washington.edu/chutter/Intro_to_STATA/toy_data.dta", clear
+
+/* 4. Generate a new variable that is an indicator for whether subjects are male or female 
+     (have males=0 and females=1) */
+gen female=.
+replace female=0 if sex=="M"
+replace female=1 if sex=="F"
+
+/* NOTE: After I generate a variable, I often check to make sure it worked out the way I wanted it to.
+In this case, I could use tab to make sure that Males are 0s and females are 1s.  I use the "missing" option
+to make sure I handled missing variables correctly */
+tab female sex, missing
+
+* 5. Label this variable, and the values for this variable
+* label the variable
+label variable female "Indicator variable for females"
+* define a label
+label define female_label 0 "Male" 1 "Female"
+* attach it to the values of the new variable female
+label values female female_label
+
+* 6. Find the mean, standard deviation, minimum and maximum for height
+sum ht
+
+* 7. Repeat 6, but restricted to males
+sum ht if sex=="M"
+* or
+sum ht if female==0
+* note the use of quotes for "M" because sex is a STRING variable
+
+* 8. Find the 25th%, median, 75th% and interquartile range for age
+tabstat age, stat(q, iqr)
+
+* 9. Repeat 8, but restricted to people with height greater than 68 (watch out for missing!)
+tabstat age if ht>68 & ht<., stat(q, iqr)
+
+* 10. Format the age and ht variables so that they will display with 2 digits after the decimal place. 
+format age ht %9.2f
+
+/* 11. Make a table of 25th%, median, 75th% and interquartile range of the variables age and height 
+	for males and for females.  Format this output to show 2 digits after the decimal place. */
+
+* note, here are some commands exploring some of the options available with tabstat
+tabstat age ht, stat(q, iqr) by(sex) columns(stat) format 
+tabstat age ht, stat(q, iqr) by(female) col(stat) format nototal long
+
+* 12. Generate a new variable that indicates if someone is over 60
+gen over60=0 if age<=60
+replace over60=1 if age>60 & age<.
+/* again, I run a check to make sure that I did this correctly */
+bys over60: sum age
+list over60 if age==.
+
+* 13. Label this variable, and the values for this variable
+lab variable over60 "Indicator that person is over 60 years of age"
+lab define over60 0 "under 60" 1 "over 60"
+lab values over60 over60 
+* make a table to make sure labels are correct
+tab over60
+
+* 14. Generate a new variable with categories for each of the quartiles of height
+/* First I need to find out the quartiles of height */
+tabstat ht, stat(q)
+
+/* 
+
+    variable |       p25       p50       p75
+-------------+------------------------------
+          ht |        62        67        69
+--------------------------------------------
+*/
+* now I can use that info to generate quartile variables
+gen htquartiles=ht
+recode htquartiles (min/62=0)(62/67=1)(67/69=2)(69/max=3)
+tabstat ht, by(htquartiles) s(n min max)
+
+* 15. Label this variable, and the values for this variable
+lab variable htquartiles "Height categories defined by quartiles"
+lab define htq 0 "<=62" 1 "63-67" 2 "67-69" 3 ">=70"
+lab values htq htq
+tab htq
+
+* 16. Save your dataset as toy_data_session2_review.dta
+save toy_data_session2_review.dta, replace
+
+* 17. Close your log and open it in Microsoft Word.
+log  close
+

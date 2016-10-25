@@ -1,0 +1,107 @@
+
+**************Exercise 5.1: ******************************************
+/* Examine whether state population sizes differ by region of the country.
+  Do this for the country divided into two regions 
+(North East/South vs North Central/West) 
+and for the four regions presented in the dataset.  
+How do you interpret your output? */
+
+* First make a variable that groups the North East with the South, and the North Central with the West:
+webuse census, clear
+gen tworegions=region
+recode tworegions (1 3=1) (2 4=2) //  recodes 1=1, 3=1, 2=2 and 4=2
+label define tworegionslabel 1 "North East/South" 2 "North Central/West"
+label values tworegions tworegionslabel
+* Next, Create an indicator variable that the population is greater than the median
+tabstat pop, stat(median)
+recode pop min/ 3066433 = 0 3066433/max=1, gen(largepop)
+label define largepoplabel 0 "< median" 1 "> median"
+label values largepop largepoplabel
+* Do a cross tabulation to see relationship between population size and region using 2 region categories, include a chi-squared test.
+tab tworegions  largepop, chi exact
+* Do a cross tabulation to see relationship between population size and region using original 4 region categories, include a chi-squared test.
+tab region  largepop, chi exact
+
+**********************************************************************
+
+*****************Exercise 5.2: ***************************************
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Test if the mean value of the first systolic blood pressure in is equal to 120 
+ttest sys1=120
+* Test if the average age of females in the sample is equal to 50
+ttest age=50 if sex=="F"
+**********************************************************************
+
+***************Exercise 5.3 ******************************************
+* Open Tucson AZ temperature dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/tucson_temp.dta", clear
+* Examine the data in this dataset
+describe
+* Summarize the observed temperature for July and August
+sum july2007 august2007
+* Test if the temperature in Tucson in July 2007 differs from the temperature in August 2007.
+ttest july2007=august2007, unpaired
+
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Examine the mean systolic blood pressure levels for cases and controls (use measurement 1)
+tabstat sys1, by(case) stat(n mean sd min max)
+graph box sys1, by(case, total col(3)) scheme(s1mono)
+* Test if the mean systolic blood pressure levels (measurement 1) differs for cases and controls.
+ttest sys1, by(case)
+**********************************************************************
+
+*****************Exercise 5.4: ***************************************
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Test if there is a difference between the first and second systolic blood pressure measurements
+* One way: generate a variable that equals the difference
+gen sysdifference=sys1-sys2
+* Use a one sample ttest to see if the mean of this difference is equal to zero.
+ttest sysdifference=0
+* Second way: do a paired ttest
+ttest sys1=sys2
+/* Note:  compare/contrast the Stata output for the two options.  
+Both give the same test statistics, p-values, etc. The second way 
+gives additional information showing mean etc in the two groups. */
+
+/* For educational purposes.  Contrast the paired output to what you 
+would have gotten if you hadn't accounted for the paired nature 
+of the data */
+ttest sys1=sys2 if sys1<. & sys2<., unpaired
+**********************************************************************
+
+********************Exercise 5.5: ************************************
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Test if the mean tg levels for men is the same as the mean for women.
+ttest tg, by(sex)
+* Same as above but allowing for unequal variances between the sexes
+ttest tg, by(sex) unequal
+**********************************************************************
+
+********************Exercise 5.6: ************************************
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Generate a new variable that indicates whether people have high blood pressure (mean systolic blood pressure for the three measures >140)
+egen meansys=rowmean(sys1 sys2 sys3)
+recode meansys min/140 = 0 140/max=1, gen(highbp)
+label variable highbp  "indicator for high blood pressure"
+label define highbp_label 0 "mean systolic bp<140" 1 "mean systolic bp>=140"
+* Test whether data is consistent with 50% of the population having high blood pressure.
+prtest highbp=.5
+* Test whether the proportion of subjects with high blood pressure differs by case/control status.
+prtest highbp, by(case)
+* Repeat test but restrict observation to males
+prtest highbp if sex=="M", by(case)
+* Repeat test but restrict to people between 50 and 80 years of age (inclusive).
+prtest highbp if inrange(age, 50, 80), by(case)
+
+/* For educational purposes.  Compare and contrast results from prtest 
+and chisq test */
+prtest highbp, by(case)
+tab highbp case, chi
+display (-1.7705)^2
+
+**********************************************************************

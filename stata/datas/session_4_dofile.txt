@@ -1,0 +1,397 @@
+******* Exercise 4.1: ****************************************
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Generate an indicator for whether people are over 50
+generate over50=0 if age<=50
+replace over50=1 if age>50 & age<.
+bys over50: sum age
+* Generate an indicator for whether people are female
+gen female=0 if sex=="M"
+replace female=1 if sex=="F"
+tab female sex
+*************************************************************
+
+****** Exercise 4.2: ****************************************
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Generate a variable that is equal to age squared
+generate agesq=age*age // Note: we could have also done gen agesq==age^2
+* Generate a variable that is height in cm, rather than height in inches
+generate htcm=ht*2.54
+* Generate a variable that is the subject's birthyear (note, the age variable is defined as their age on December 31, 2007.)
+gen birthyear=2007-age
+* Generate a variable that is the ratio of the first systolic blood pressure and first diastolic blood pressure measurements
+gen bpratio=sys1/sys2
+*************************************************************
+
+****** Exercise 4.3: ****************************************
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Examine the triglyceride variable
+sum tg, detail
+hist tg
+* This variable has a skewed distribution. Lets take the log transformation: 
+generate logtg=log(tg)
+label variable logtg "Log of triglyceride (natural log)"
+generate log10tg=log10(tg)
+label variable log10tg "Log base 10 of triglyceride"
+* Examine the log transformed variable
+sum logtg, detail
+  hist logtg, bin(10)
+* If you use exp() you can get the original tg values back
+gen tg2=exp(logtg)
+scatter tg tg2, title("scatter plot of triglyceride vs exp(log(triglyceride))") ///
+          note("sort of silly graph, done to show that exp(log(triglyceride))==triglyceride")
+*************************************************************
+
+******* Exercise 4.4: ***************************************
+* Open new_toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Create new variables that are the maximum and minimum systolic blood pressure values for each person.  
+gen maxsbp=max(sys1, sys2, sys3)
+gen minsbp=min(sys1, sys2, sys3)
+list sys1 sys2 sys3 maxsbp minsbp in 1/10
+* Examine how Stata handled missing values
+list sys1 sys2 sys3 maxsbp minsbp if sys1 ==. | sys2 ==. | sys3==.
+*************************************************************
+
+
+******************Exercise 4.5: *****************************
+* Have Stata do some simple addition
+display 2+4
+display 327+88829
+* Have Stata give you the log base e and log base 10 of some vaules
+display log(10)
+display log10(10)
+display log(100)
+display log10(100)
+/* A common use of display in intro biostats courses is to exponentiate log transformed variables.
+Example: say I wanted to geometric mean of height.  I have a couple of options.
+1) I could use the means command */
+means ht // note: means gives arithmetic, geometric and harmonic mean
+* 2) I could log transform height, summarize this new variable and exponentiate its mean
+gen logheight=log(ht)
+sum logheight
+  display exp(4.195979)
+*************************************************************
+
+***** Exercise 4.6 ******************************************
+/* Say I did a chisq test for the following table: 
+	Cases	Controls	Total
+Exposed	100	140	240 
+Unexposed	400	360	760 
+Total	500	500	1,000
+
+I would get a chisq test statistic of 8.7719. To get the corresponding p-value, I could use */
+display chi2tail(1, 8.7719)
+
+* Suppose I wanted to construct a 95% confidence interval for the mean ht.  I could take advantage of the means command.
+means ht
+* Or I could construct a confidence interval using the mean and standard deviation.
+display 66.53846+invttail(38, 0.025)*4.070731/sqrt(39)
+display 66.53846-invttail(38, 0.025)*4.070731/sqrt(39)
+
+*************************************************************
+
+******* Exercise 4.7: ***************************************
+* Open the census data from Stata's website
+webuse census, clear
+/* Say I wanted to know what is the most common letter for the start of US state names.
+I could generate a new variable that is the first letter in the string
+"state" and then tab that variable.  
+I do this using the function substr(stringname, starting position, length) */
+gen firstletter=substr(state, 1, 1)  // substring of state, starting at position 1, length of 1
+tab firstletter
+/* Say I wanted to know the most common last letter for US state names.
+Option 1: reverse string to get last letter */
+gen reversestate=reverse(state) // reverses the string
+gen lastletter=substr(reversestate, 1, 1)
+gen caplastleter=upper(lastletter) // shows how you can capitalize a string
+tab lastletter
+* Option 2: use length command to get position of last letter.
+gen length=length(state) // returns a variable that gives the length of string for each observation
+gen lastletter2=substr(state, length, 1) // note I can use "length" within this function
+tab lastletter2
+* Option 3: use a negative number to indicate that I want to start counting from the end of the string (note, this is probably the best option).
+gen lastletter3=substr(state, -1, 1) // substring of state, starting at position 1 from end, length of 1
+tab lastletter3
+*************************************************************
+
+
+******** Example 4.8 ****************************************
+* Open the census data from Stata's website
+webuse census, clear
+* Say I wanted a summary population size for all the states I have ever lived in.  I could write this out: 
+sum pop if state=="Mississippi" | state=="Colorado"| state=="Arizona" ///
+| state=="New York" | state=="Washington"
+* But I get a little sick of typing | state==" .  Instead I can use inlist.
+sum pop if inlist(state, "Mississippi", "Colorado", "Arizona","New York" , "Washington")
+
+* Note: inlist(z,a,b,...) works for both string and numeric variables. Note, I needed to put quotes around the values in my list because state is a string variable.  If I wanted to use inlist with a numeric variable, I would not use the quotes.
+
+* inrange(z,a,b) works for numeric variables.  For example, if I wanted to list all states with a population between 1 million and 2 million (inclusive) I could type
+list state pop if pop>=1000000 & pop<=2000000
+* Or 
+list state pop if inrange(pop, 1000000, 2000000)
+*************************************************************
+
+********** Example 4.9 **************************************
+* Lets say I wanted to change the label for "region"
+webuse census, clear
+describe region
+* Create the following label (note, it is purposely incorrect)
+label define regionlabel 1 "North East" 2 "North Central" 3 "Suoth"
+label values region regionlabel
+* Tab the variable and note: 1) misspelling of "south", and 2) no label for "West" region
+tab region
+* Modify the label to correct these errors
+label define regionlabel 3 "South", modify
+tab region
+label define regionlabel 4 "West", add
+tab region
+* Note: I could have combined the two
+ label define regionlabel 3 "South" 4 "West", modify
+*************************************************************
+
+
+**************Example 4.10 **********************************
+* Lets go back to the new toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Code age in 10 year age categories.  I could do a long series of replaces
+gen agecat1=.
+replace agecat1=0 if age<30
+replace agecat1=1 if age>=30 & age<40
+replace agecat1=2 if age>=40 & age<50
+replace agecat1=3 if age>=50 & age<60
+replace agecat1=4 if age>=60 & age<70
+replace agecat1=5 if age>=70 & age<80
+replace agecat1=6 if age>=80 & age<90
+replace agecat1=7 if age>=90 & age<.
+* Or use recode
+recode age min/30=0 30/40=1 40/50=2 50/60=3 60/70=4 70/80=5 80/90=6 90/max=7, gen(agecat2)
+tab agecat1 agecat2
+/* Another example.  divide the census data into two regions, rather than
+ four.  Group the North East with the South, and the North Central with 
+the West: */
+webuse census, clear
+gen tworegions=region
+recode tworegions (1 3=1) (2 4=2) // recodes 1=1, 3=1, 2=2 and 4=2
+label define tworegionslabel 1 "North East/South" 2 "North Central/West"
+label values tworegions tworegionslabel
+tab tworegions region
+* Create an indicator variable that the population is greater than the median
+tabstat pop, stat(median)
+recode pop min/ 3066433 = 1 3066433/max=2, gen(largepop)
+* Change this variable to be coded 0/1 rather than 1/2
+recode largepop 1=0 2=1 // note this makes permanent change to largepop
+label define largepoplabel 0 "< median" 1 "> median"
+label values largepop largepoplabel
+* Do a cross tabulation to see relationship between population size and region
+tab tworegions  largepop 
+*************************************************************
+
+************** Example 4.11 *********************************
+* Open the census data
+webuse census, clear
+* Use decode to create a string variable for the regions
+decode region, gen(region_string)
+list region region_string in 1/10
+list region region_string in 1/10, nolabel
+* Use encode to create a new numeric variable for region
+encode region_string, gen(region2)
+list region region_string region2 in 1/10
+list region region_string region2 in 1/10, nolabel
+* Note: encode made a new variable with the regions in alphabetical order, this resulted in a different ordering of the variables.
+tab region region2
+tab region region2, nolabel
+* Note: encode and decode gave the new variables the same variable label.  encode created value labels for the newvariable region2
+describe region*
+codebook region region2
+label list
+* Combine encode and recode to come up with a new way to generate an indicator variable for "female" in our toy dataset:
+* Open the new toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Encode the sex variable
+encode sex, gen(female)
+* This gave us females as 1 and males as 2
+codebook female
+* Use recode to have males=0 and females=1
+recode female 2=0 // note, don't change value for females
+* But now the label for female is screwy
+tab female
+* Modify the label
+label define female 0 "male" 1 "female", modify
+tab female
+* Modify the label so that 2 is no longer labled "F"
+label list 
+label define female 0 "male" 1 "female" 2 "", modify
+label list
+*************************************************************
+
+*********** Example 4.12 ************************************
+* Open the census data
+webuse census, clear
+* Make a string version of the population variable
+tostring pop, gen(pop_string)
+list pop pop_string in 1/10
+/* Use encode to create a new numeric variable from the population 
+variable (NOTE, this example is to show what can go wrong)*/
+encode pop_string, gen(pop2)
+sort pop
+list pop pop_string pop2 in 1/10
+list pop pop_string pop2 in 1/10, nolabel
+sum pop pop2
+* Note: encode made a new variable with the populations in "alphabetical" order (this isn't the same as numeric order, alphabetical sorts 11 before 2).
+
+/* There are two ways to correctly turn a variable like pop_string into a numeric variable:
+1) use generate and real */
+gen pop3=real(pop_string) // this creates a new variable with the string values
+* 2) use destring
+destring pop_string, gen(pop4)
+list pop pop_string pop2 pop3 pop4 in 1/10
+list pop pop_string pop2 pop3 pop4 in 1/10, nolabel
+sum pop pop2 pop3 pop4
+* Note: destring made the new variable long, not a float.  It also put the variable right after pop_string, whereas generate and real put the variable at the end of the list.
+*************************************************************
+
+****** Example 4.13 *****************************************
+* Open the census data
+webuse census, clear
+* Create a categorical variable for quartiles of the population distribution
+xtile popquartile=pop, nq(4)
+* Confirm that this variable put cutpoints at the 25%, 50% and 75%:
+tabstat pop, stat(q)
+tabstat pop, stat(min max) by(popq)
+* Create a categorical variable for tertiles(sp?) of the population distribution
+xtile pop_divided_in_thirds=pop, nq(3)
+*************************************************************
+
+****** Example 4.14 *****************************************
+* Open the census data
+webuse census, clear
+* Make indicator variables for each region
+tab region, gen(region_ind)
+tab region region_ind1
+*************************************************************
+
+**************** Example 4.15 *******************************
+* Open the new toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+/* Make a new variable that is the minimum of the first systolic
+	 blood pressure measurements across all observations */
+egen minsys1=min(sys1)
+/* Make a new variable that is the minimum of the three systolic
+	 blood pressure measurements within a single observations */
+gen obsminimumsys=min(sys1, sys2, sys3)
+/* Make a new variable that is the mean of the second systolic 
+	blood pressure measurements across all observations */
+egen meansys2=mean(sys2)
+/* Make a new variable that is the mean of the three systolic
+	 blood pressure measurements within a single observations */
+egen obsmeansys=rowmean(sys1 sys2 sys3)
+* Another way to calculate the mean of the three systolic blood pressure measurements within a single observations:
+egen totalsysvalues=rowtotal(sys1 sys2 sys3) // get the total of the three values (missings as 0)
+egen numsysvalues=rownonmiss(sys1 sys2 sys3) // get the count of non-missing values
+gen obsmeansys_calculated=totalsysvalues/numsysvalues // mean=total/(# of non-missing obs)
+* Standardize the triglyceride values:
+egen meantg=mean(tg)
+egen sdtg=sd(tg)
+gen standardizedtg=(tg-meantg)/sdtg
+* Another way to standardize:
+egen standardizedtg_egen=std(tg)
+/* Create a variable that has the maximum height for males 
+	for all male observations, and the maximum height for females 
+	for all female observations */
+bys sex: egen maxhtforsex=max(ht)
+label variable maxhtforsex "height of tallest person of the same sex as this individual"
+* Create a variable that has the height for a given height/sex category
+bys sex case: egen meanht_sexcase=mean(ht)
+label variable meanht_sexcase ///
+"mean ht for sex, and case-control status"
+* Another useful egen command is rank, that will rank each observation in terms of their value for a particular variable
+egen agerank=rank(age)
+label variable agerank "ranking in terms of age"
+bys sex: egen agerank_sex=rank(age)
+label variable agerank_sex "ranking in terms of age, within gender groups"
+*************************************************************
+
+*************Example 4.16 ***********************************
+* Open the new toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Create a variable that groups people according to their case and gender
+egen casegendergroup=group(case sex)
+tab casegendergroup case
+tab casegendergroup sex
+* Create a variable that "tags" one observation for each case/gender group
+egen casegendertag=tag(case sex)
+tab casegendertag
+list case sex casegendergroup if casegendertag // note this is the same as saying list if tag==1
+*************************************************************
+
+**************Stata code from 517 HW#3 **********************
+
+* Open dataset:
+infile ptid time female age dose put spd spm using /// 
+	"http://www.emersonstatistics.com/courses/formal/b517/dfmolong.txt", clear
+drop in 1
+* This dataset has repeated observations per individual. The variable ptid is a unique identifier for each individual, the variable spm is their spermine count for a given observation. 
+* Find the mean spermine per individual:
+egen mnspm = mean(spm), by(ptid)
+* Count the number of Non-missing spermine observations per individual
+egen nspm= count(spm) if spm!=., by(ptid) 
+/* Note:  count only counts non-missing observations, so an equivalent command is:
+egen nspm= count(spm), by(ptid) */
+* Tag one observation per individual
+egen tag=tag(ptid)
+* Summarize the number of non-misisng spermine observations per individual
+tabstat nspm if tag, stat(n mean sd mean min max)
+* If we didn't restrict ourself to "if tag" (equivalent to if tag==1), we would have overrepresented people with more observations.	
+tabstat nspm, stat(n mean sd mean min max)
+*************************************************************
+
+***** Example 4.17 ******************************************
+* Open the census data
+webuse census, clear
+* Make a variable that is the first and last letter of the state name
+gen firstletter=substr(state, 1, 1)
+gen lastletter=substr(state, -1, 1)
+egen firstlast=concat(firstletter lastletter)
+tab firstlast
+* Repeat, but put a comma inbetween the two letters.
+egen firstlast_comma=concat(firstletter lastletter), punct(,)
+tab firstlast_comma
+* Concat will use the label for a numeric label, unless you indicate decode.
+egen pop18region=concat(pop18p region), decode
+egen pop18region2=concat(pop18p region)
+list pop18r*
+*************************************************************
+
+***************** Example 4.18 ******************************
+* Open the new toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* Create a categorical variable that divides people into 10 year age categories
+egen tenyearagecat=cut(age), at(20, 30, 40, 50, 60, 70, 80, 90, 100)
+* Equivalently we can type:
+egen tenyearagecat2=cut(age), at(20(10)100)
+* The default is that it created a variable where the values are the left-hand number.  If you instead want the variable to have values 0, 1, 2… you can use the label option
+egen tenyearagecat3=cut(age), at(20(10)100) label
+describe tenyear*
+sum tenyear*
+list age tenyear*
+list age tenyear*, nol
+* Examine what happens if you have values greater than the last cut point number:
+egen tenyearagecat4=cut(age), at(20, 30, 40, 50, 60, 70)
+tab tenyearagecat tenyearagecat4, missing
+*************************************************************
+
+****************** Example 4.19 *****************************
+* Open the census dataset
+webuse census, clear
+* Put all the variables in alphabetical order
+aorder
+* Generate a variable for the deathrate, and put it after the variable death
+gen deathrate=death/pop
+move deathrate death
+* Move the variables state and region back to the top of the dataset
+order pop state
+*************************************************************

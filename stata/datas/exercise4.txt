@@ -1,0 +1,56 @@
+* Exercise:
+/* Do the following using STATA.  
+(Try to do them on your own. If you get stuck, a list of the commands 
+showing one way to do each of these is included in the 
+file http://students.washington.edu/chutter/Intro_to_STATA/review_session6_dofile.txt) */
+
+* 1. Set your default directory
+cd f:\stataclass
+
+* 2. Start a log file (have it be a text file, rather than a smcl file) 
+
+capture log close
+log using session6_review.txt, text replace
+
+/* 3. Open the dataset new_toy_data.dta (this is a STATA 10 dataset.  
+If you are using an earlier version of STATA you will need to insheet toy_data.csv)*/
+
+use http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta, clear
+
+* 4. Open a new do file, and type commands in the do file, rather than on the command line. 
+
+/* 5. Generate a new variable called "bpratio" that is the ratio of the average systolic 
+blood pressure and average diastolic blood pressure for each individual 
+(hint: as a start, use the command:
+egen avgsys=rowmean(sys1 sys2 sys3) 
+to get average systolic blood pressure for an individual).  */
+
+egen avgsys=rowmean(sys1 sys2 sys3)
+egen avgdias=rowmean(dias1 dias2 dias3)
+gen bpratio=avgsys/avgdias
+label variable bpratio "ratio of avg systolic bp and average diastolic bp)
+
+/* 6. Do a two-sample (unpaired) test to test if the mean value of 
+the variable bpratio differs between cases and controls.  
+(Note, if you are using an older version of the toy dataset, you might want to label 
+the values of the variable case to make your output easier to interpret). */
+
+ttest bpratio, by(case) unequal
+
+* 7. Generate an indicator variable that has the value 0 for people 50 and under and the value 1 for people over 50.
+
+recode age 50/max=1 min/50=0, gen(over50)
+* note, in this order people who are exactly 50 will have over50=0.
+label variable over50 "indicator that people are over 50 years of age"
+label  define over50_label 0 "<=50 years" 1 ">50 years"
+label values over50 over50_label
+
+tabstat age, by(over50) stat(min max)
+
+
+* 8. Do a chisquared test to see if there is evidence in this dataset for an association between case/control status and being over50.
+
+tab over50 case, chi
+
+* close your log
+log close

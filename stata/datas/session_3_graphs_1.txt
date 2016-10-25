@@ -1,0 +1,62 @@
+*******************************
+*** session_3_graphs_1.txt  ***
+*******************************
+
+* Created by Carolyn Hutter on October 8th
+* Commands for doing some basic graphs
+
+* open dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/toy_data.dta", clear
+
+* Create a scatter plot of age and ht
+graph twoway scatter age ht
+
+* Histogram of height
+histogram ht, bin(5)
+
+/* Histogram of height with males, females and total 
+	with 10 categories
+	in separate panels all in one column */
+hist ht, bin(10) by(sex, total c(1)) freq
+
+* Bar chart of mean age over case status
+graph bar age, over(case)
+
+* make the graph more informative by labeling the variable case
+capture label drop case // note use of capture
+label define case 0 "control" 1 "case"
+label values case case
+label variable case "Case/control indicator"
+graph bar age, over(case)
+
+* Make graph more informative by adding titles
+graph bar age , over(case) /// HIGHLIGHT THIS LINE AND 2 LINES BELOW 
+	b1title(case status) ytitle(Mean age in years) ///  
+	title(Mean age by case status) // END HIGHLIGHTING HERE
+
+* Same graph, but with median age, rather than mean age
+graph bar (median)age , over(case) /// HIGHLIGHT THIS LINE AND 2 LINES BELOW 
+	b1title(case status) ytitle(Median age in years) ///  
+	title(Median age by case status) // END HIGHLIGHTING HERE
+
+
+* Box plot of ht,with males and females on same graph
+graph box ht, over(sex)
+
+* Box plot of ht, with males and females in separate panels
+graph box ht, by(sex)
+
+/* Box plot of ht, with males and females in separate panels 
+	and a third panel for the total group */
+graph box ht, by(sex, total)
+
+* Same graph, but with the three panels in a row
+graph box ht, by(sex, total col(3))
+
+* same graph, but under differnt schemes
+graph box ht, by(sex, total col(3)) scheme(s1mono)
+graph box ht, by(sex, total col(3)) scheme(s2mono)
+
+* save the graph as a windows metafile
+graph export box_plot.wmf, as(wmf) replace
+

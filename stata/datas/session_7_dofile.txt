@@ -1,0 +1,125 @@
+
+*************** Exercise 7.1 **************************************
+
+* Open dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+* See what happens if you try to use cs with a non 0/1 variable
+capture cs case sex
+* Create a 0/1 indicator variable for sex (0=males, 1=females)
+gen female=.
+replace female=0 if sex=="M"
+replace female=1 if sex=="F"
+label define female 0 "male" 1 "female"
+label values female female
+
+* Analyze the relationship between gender and case status, pretending this data came from a cohort study.
+cs case female
+
+* Analyze the relationship between gender and case status, pretending this data came from a case-control study
+cc case female
+
+* Analyze the relationship between gender and blood pressure.
+/* First make categories for blood pressure 
+	(normal, pre-hypertensive, high bp) */
+egen sysavg=rowmean(sys1 sys2 sys3)
+recode sysavg min/120=0 120/140=1 140/max=2, gen(syscat)
+label define syscat_lab 0 "normal" 1 "pre-hypertensive" 2 "high bp"
+label values syscat syscat_lab
+
+/* Calculate the odds of disease for each level of the blood pressure 
+	categorical variable */
+tabodds case syscat
+* Calculate the odds ratio with normal blood pressure as the reference
+tabodds case syscat, or
+*******************************************************************
+
+****************** Exercise 7.2 ***********************************
+
+* Open dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.dta", clear
+/* Collect summary information needed to do a two sample t-test of 
+	the null hypothesis that men and woman are the same height. */
+tabstat ht, stat(n mean sd) by(sex)
+* Use this information to perform a t-test using the ttesti command:
+ttesti 21  64.71429  2.848559 17  69.11765  3.982498
+* Compare with results using standard ttest command:
+ttest ht, by(sex)
+*******************************************************************
+
+*********************Exercise 7.3 *********************************
+/* Is the proportion of people in the US leaning towards voting 
+ democratic different on October 8th compared to September 17th? */
+prtesti 622 .48 622 .59
+/* Is the proportion of people leaning towards voting democratic 
+	on October 8th significantly higher than 50%? */
+prtesti 622 .59 .50
+*******************************************************************
+
+******************* Exercise 7.4 *********************************
+* Get information for the first table
+tabi 18 247 \ 74858 570707, col chi
+* Get information for the second table
+tabi 6 259 \ 17881 627684, col chi
+*******************************************************************
+ 
+******************** Exercise 7.5 *********************************
+
+* To find the odds ratio from the above table:
+csi 65 25 35 75
+
+* To find the relative risk from the above table:
+cci 65 25 35 75
+
+/* Find an example in one of your epi homeworks 
+	where you calculated the OR or PAR% by hand.  
+	Compare what you get when you use the cci command. */
+*******************************************************************
+
+******************* Exercise 7.6 **********************************
+
+/* Calculate power to detect a 20 unit (or greater)  difference 
+	in blood pressure if the standard deviation in each group is 20,
+	 and the sample size in each group is 20. */
+sampsi 120 100, sd(20) n1(20) n2(20)
+/* Calculate power to detect a 20 unit (or greater) difference 
+	in blood pressure if the standard deviation in one group is 20, 
+	and the standard deviation in the other group is 25, 
+	with a sample size in each group of 20. */
+sampsi 120 100, sd1(20) sd2(25) n1(20) n2(20)
+* Note impact of increasing sample size on power
+sampsi 120 100, sd1(20) sd2(25) n1(10) n2(10)
+sampsi 120 100, sd1(20) sd2(25) n1(20) n2(20)
+sampsi 120 100, sd1(20) sd2(25) n1(30) n2(30)
+* Note impact of increasing standard deviation on power
+sampsi 120 100, sd1(10) sd2(15) n1(20) n2(20)
+sampsi 120 100, sd1(20) sd2(25) n1(20) n2(20)
+sampsi 120 100, sd1(30) sd2(35) n1(20) n2(20)
+* Note impact of increasing minimal detectable difference on power
+sampsi 120 110, sd1(10) sd2(15) n1(20) n2(20)
+sampsi 120 100, sd1(20) sd2(25) n1(20) n2(20)
+sampsi 120 90, sd1(30) sd2(35) n1(20) n2(20)
+
+/* Calculate sample size needed to have 80% power to detect a 20 unit
+	 (or greater) difference in bllod pressure if the standard 
+	deviation in one group is 20, and the standard deviation in 
+	the other group is 25.  Assume equal sample sizes in each group. */
+sampsi 120 100, sd1(20) sd2(25) p(0.8)
+/* Calculate sample size needed to have 80% power to detect a 20 unit 
+	(or greater) difference in bllod pressure if the standard deviation 
+	in one group is 20, and the standard deviation in the other group 
+	is 25.  Assume one group is twice as large as the other. */
+sampsi 120 100, sd1(20) sd2(25) p(0.8) r(2)
+* Note impact of increasing power cut off on sample size
+sampsi 120 100, sd1(20) sd2(25) p(0.7)
+sampsi 120 100, sd1(20) sd2(25) p(0.8)
+sampsi 120 100, sd1(20) sd2(25) p(0.9)
+
+/* Calculate sample size needed to have 80% power to be able to detect 
+	a relative risk of 2 or greater for a disease with prevalence of 
+	5% in control population */
+sampsi .05 .1, p(0.8)
+/* Calculate power to be able to detect a relative risk of 1.5 or 
+	greater for a disease with prevalence of 5% in control population 
+	when sample size is 250 cases and 250 controls: */
+sampsi .05 .075, n1(250) n2(150)
+*******************************************************************

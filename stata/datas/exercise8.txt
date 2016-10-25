@@ -1,0 +1,86 @@
+*Exercise:
+*Find out current memory setting
+query memory
+*Find out current memory usage
+memory
+*Change memory usage
+clear
+set memory 500m
+*Make change permanent 
+set memory 500m, perm
+query memory
+*****************************************
+*Exercise:
+*Open the dataset census.dta, available on the Stata website (note, since this is on the Stata website, we can use the webuse command)
+webuse census, clear
+*Examine the variable names in that dataset
+describe, simple
+*Drop the variable state
+drop state
+*Keep all variables that start with "pop"
+keep pop*
+*Examine the updated list of variable names in that dataset
+describe, simple 
+
+*Count the number of observations in the dataset
+count
+*Keep all observations with population > 5 million
+keep if pop>5000000
+*Drop the observation with the smallest urban population
+sort popurban
+drop in 1
+*Count how many observations are left in the dataset
+count
+
+***************************
+*Exercise:
+*Open the cenus dataset from the Stata website
+webuse census, clear
+*Use codebook to get details about the data, note the -more-
+codebook
+*When you see -more-, examine difference between hitting enter key and space bar.
+*Examine the effect of turning more on and off
+set more off
+codebook
+set more on
+codebook
+
+********************
+*Exercise:
+use "http://students.washington.edu/chutter/Intro_to_STATA/toy_data.dta", clear
+*Set the scheme for graphs to be s1mono (or s1color if you prefer)
+set scheme s1mono, perm
+*Make a boxplot of height by sex with the total
+graph box ht, by(sex, total col(3))
+*Export this graph as a windows meta file
+graph export box_plot.wmf, as(wmf) replace
+*Open a file in word and insert this graph as a picture.
+
+*************************
+*Exercise:
+*Open toy dataset
+use "http://students.washington.edu/chutter/Intro_to_STATA/toy_data.dta", clear
+*Make a boxplot of height by sex with the total
+format age ht %9.2f
+tabstat age ht, stat(mean sd min med max) by(sex) col(stat) format nototal long
+/*Copy this table as a picture and past it in Word
+Copy this table as a table and paste it in Word
+Highlight text and covert it to a table using Table'Convert'Text to table.
+(when dialogue box comes up, just click OK)
+Format the table 
+Table'Autoformat (chose classic 1)
+
+Copy this as a table and paste it in Excel
+Change the formatting to have one significant digit after the decimal point in 
+              Excel (use format cells category: number)
+
+Copy this as text and paste it in Word
+	Change the font to Courier, size 10
+
+Copy this as text and paste it in Excel.
+	Convert it to a table using Data'Text to columns 
+(for the different tabs select: delimited, space, finish) */
+
+
+
+

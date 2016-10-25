@@ -1,0 +1,48 @@
+*******************************
+*** long_command_dofile.txt ***
+*******************************
+
+* Created by Carolyn Hutter on October 8th
+* Demonstrates ways to format long command lines in Stata dofiles
+
+
+
+* sometimes commands in Stata are very long. For example:
+infile seqnbr subjid age  fev height sex smoke using "http://www.emersonstatistics.com/courses/Formal/b517/fev.txt", clear
+
+* this can be hard to read.  So it is useful to split it up over multiple lines.
+
+******************************************************************************
+
+* you can make use of notation that was introduced in discussing comments
+/* Note, you need a space before and after the three slashes "///", 
+	but not the slash asterisks */
+
+infile seqnbr subjid age  fev height sex smoke using ///
+	"http://www.emersonstatistics.com/courses/Formal/b517/fev.txt" ///
+ 	, clear
+
+* or
+infile seqnbr subjid age  fev height sex smoke using/*
+	*/"http://www.emersonstatistics.com/courses/Formal/b517/fev.txt"/*
+ 	*/, clear
+
+******************************************************************************
+
+* you can also use #delimit to change the end of line delimiter
+/* This is best used when you plan to run/do an entire do file.  
+	If you are highlighting sections of the do file to run, you will need to
+	also highlight the #delimit line each time */
+#delimit ;
+infile seqnbr subjid age  fev height sex smoke using 
+	"http://www.emersonstatistics.com/courses/Formal/b517/fev.txt" 
+ 	, clear;
+
+
+#delimit cr; 
+* this restores the delimiter to a carriage return (cr)
+
+* try the above highlighting and doing everything from "#delimit" to ", clear;"
+* try again only highlighting from "infile" to ", clear;" and note error
+
+

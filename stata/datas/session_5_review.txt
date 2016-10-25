@@ -1,0 +1,63 @@
+*** Review of sessions 1-4
+
+* 1. Set your default directory
+cd e:/stataclass
+
+* 2. Start a log file (have it be a text file, rather than a smcl file) 
+capture log close
+log using week5_review_log.txt, text replace
+
+* 3. Open the dataset new_toy_data.dta (this is a STATA 10 dataset.  If you are using an earlier version of STATA you will need to insheet toy_data.csv)
+insheet using "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.csv", clear
+
+* 4. Open a new do file, and type commands in the do file, rather than on the command line. 
+/* use drop down window, icon, or ctrl+8 to open window)*/
+
+* 5. Generate a variable that divides age into ten year age categories
+recode age min/30=1 30/40=2 40/50=3 50/60=4 60/70=5 70/80=6 80/90=7 90/max=8, gen(agecat)
+
+* 6. Label this variable, and the values for this variable
+lab variable agecat "age in 10 year categories"
+lab define agecat_label 1 "under 30" 2 "30-39" 3 "40-49" 4 "50-59" 5 "60-69" 6 "70-79" 7 "80-89" 8 "90+"
+label values agecat agecat_label
+* confirm this was done properly
+tabstat age, by(agecat) stat(min max)
+
+* 7. Generate a categorical variable for height in quartiles
+xtile heightquartile=ht, nq(4)
+
+* 8. Label this variable, and the values for this variable
+label define heightquartile_label 1 "1st quartile" 2 "2nd quartile" 3 "3rd quartile" 4 "4th quartile"
+label values heightquartile heightquartile_label
+* note the xtile command created a variable label for me.
+* confirm this was done properly
+tabstat ht, stat(q)
+tabstat ht, by(heightquartile) stat(min max)
+
+* 9. Create indicator variables for each of the ht quartiles
+tab heightquartile, gen(htquart)
+
+*10. Generate an indicator variable that has the value 0 for males and 1 for females.
+gen female=0 if sex=="M"
+replace female=1 if sex=="F"
+
+* 11. Label this variable, and the values for this variable
+label variable female "indicator for females, 0=male, 1=female"
+label define female 0 "male" 1 "female"
+label values female female
+* confirm this was done properly
+tab female sex
+
+* 12. Generate a variable that gives the minimum diastolic blood pressure for each individual.
+gen mindias=min(dias1, dias2, dias3)
+* 13. Generate a variable that gives the mean diastolic blood pressure for each individual.
+egen meandias=rowmean(dias1 dias2 dias3)
+* 14. Generate a variable that gives the minimum value for diastolic blood pressure measurement 1 across all individuals
+egen mindias1=min(dias1)
+* 15. Generate a variable that gives the minimum value for dias1 in groups defined by sex and height quartiles.
+bys sex heightquartile: egen mindias_sexht=min(dias1)
+* note this also created values for the group defined by missing ht, and the group defined by missing sex information
+
+list *dias* in 1/10
+
+* 16. Close your log and open it in Microsoft Word.

@@ -1,0 +1,162 @@
+****************Exercise 6.1: **********************************
+/* Open Stata drug dataset.  This dataset has information on 48
+ patients 28 of whom received a drug, 20 of whom received placebo. 
+ It has information on how long they were on the study (in months),
+ whether they were observed to die, and their age at enrolment. 
+ It has already been stset, so it has the _t, _t0, _d and _st variables*/
+webuse drugtr, clear
+* Examine the dataset.
+describe
+* Determine how many people were observed to die (vs. lost to follow-up or on study at the end).
+tab drug
+/* Determine how long it was (in terms of time on study) before the first person was censored 
+(i.e. what is the minimum time on study for people who weren't observed to die?). */
+tabstat studytime, by(died) stat(n min max)
+* Let Stata know that this is survival time data
+stset studytime, failure(died)
+* Examine the new dataset, and relationships between the new variables and old variables
+list in 1/10
+stsum
+corr studytime _t
+scatter studytime _t
+tab _d died
+
+*******************************************************************
+
+*************Exercise 6.2:*****************************************
+* Open Stata drug dataset.  
+webuse drugtr, clear
+* Let Stata know that this is survival time data
+stset studytime, failure(died)
+* Examine the K-M survival function
+sts list
+* See how the first couple of numbers are calculated.
+* At time 1 there were 48 people at risk and 2 events
+display (1-2/48)
+* At time 2 there were 46 people at risk and 1 event
+display (1-2/48)*(1-1/46) 
+* At time 3 there were 45 people at risk and 1 event
+display (1-2/48)*(1-1/46)*(1-1/45)
+*******************************************************************
+
+**************Exercise 6.3: ***************************************
+* Open Stata drug dataset.  
+webuse drugtr, clear
+* Let Stata know that this is survival time data
+stset studytime, failure(died)
+* Examine the K-M survival function at 10 intervals
+sts list, at(10)
+* Find the proportion of people with survival times > than 1 year, 2 years and 3 years
+sts list, at(12 24 36)
+* Examine the K-M function every six months up to year 4
+sts list, at(6 12 to 48)
+*******************************************************************
+
+**************Exercise 6.4: ***************************************
+* Open Stata drug dataset.  
+webuse drugtr, clear
+* Let Stata know that this is survival time data
+stset studytime, failure(died)
+* Confirm that the median survival time is 17 months
+stci
+stci, p(50)
+* Find the estimate for the 25th% of the survival function
+stci, p(25)
+*******************************************************************
+
+*****************Exercise 6.5: ************************************
+* Open Stata drug dataset.  
+webuse drugtr, clear
+* Let Stata know that this is survival time data
+stset studytime, failure(died)
+* Estimate the survival function for people who took the drug
+sts list if drug==1
+* Estimate the survival function for groups defined by drug status
+sts list, by(drug)
+* label values of the variable drug
+label define drug_label 0 "placebo" 1 "drug"
+label values drug drug_label
+* Estimate the probability of surviving past 1 year, 2 years and 3 years for groups defined by drug status
+sts list, at(12 24 36) by(drug) compare
+* Find the estimated median survival time for people on the drug, and people on placebo
+stci, by(drug)
+* Find the estimated 25th% of the survival curve for people on the drug, and people on placebo
+stci, by(drug) p(25)
+*******************************************************************
+
+****************Exercise 6.5: *************************************
+* Open Stata drug dataset.  
+webuse drugtr, clear
+* Let Stata know that this is survival time data
+stset studytime, failure(died)
+* Set the scheme to be s1mono
+set scheme s1mono
+* Graph the survival function
+sts graph
+* Note, I can improve the graph by labeling the values of my variable
+label define drug 0 "placebo" 1 "drug"
+label values drug drug
+sts graph
+* Create a graph of the survival function, showing number of subjects at risk at each interval:
+sts graph, atrisk
+* Create a graph of the survival function, indicating points where people were censored
+sts graph, censored(s)
+* Create a graph of the survival function, indicating when people were censored, and the number censored at each point
+sts graph, censored(n)
+* Create a graph comparing survival functions for placebo vs drug
+sts graph, by(drug)
+/* Create a graph comparing survival functions for placebo vs drug, indicating
+ when people were censored, and the number censored at each point */
+sts graph, by(drug) censored(n)
+* Create a graph of the survival function with 95% confidence intervals.
+sts graph, ci
+/* Create a graph of the survival function with 95% confidence intervals 
+that doesn't have the grey shading for the 95% confidence interval */
+sts graph, ci ciopts(fcolor(none))
+* Create a graph of the survival function for placebo and for drug with 95% confidence intervals.
+sts graph, ci by(drug)
+/* Create a graph of the survival function with 95% confidence intervals 
+that doesn't have the grey shading for the 95% confidence interval 
+(note, this can only be done by plotting the two curves in separate panels).*/
+sts graph, ci ciopts(fcolor(none)) by(drug) separate
+*******************************************************************
+
+****************Exercise 6.7: *************************************
+* Open Stata drug dataset.  
+webuse drugtr, clear
+* Let Stata know that this is survival time data
+stset studytime, failure(died)
+* Compare the survival function for those on the drug and those on placebo using a log-rank test
+sts test drug
+* Compare the survival function for those on the drug and those on placebo using a wilcoxon test
+sts test drug, wilcox
+/* Compare the survival function for those on the drug and those on placebo using
+ cox regression with robust standard error estimates */
+stcox drug, robust
+*******************************************************************
+
+************517 students: *************************************
+/*
+ Scott might have you do the following type of analysis: 
+Perform an analysis to see if the probability of surviving 
+for one year differs for those on drugs and those on placebo. */
+
+* 1) Find the probability of surviving for one year (12 months) in each group.  
+sts list, at(12 24) by(drug) 
+/* Note I had to put at(12 24), because if I just wrote at(12) 
+it would have given me the survival function at 12 equally spaced points.*/
+
+/* 2) use the method presented in 517 for combining estimates 
+that are approximately normally distributed. */
+* The mean difference between the two groups is:
+display .8527-.2250
+* The standard error for the mean difference is:
+display sqrt((0.0971^2)+(0.0682^2))
+* So a 95% CI is:
+display .6277+invnorm(0.975)*.1186577
+display .6277-invnorm(0.975)*.1186577
+* The Z-statistic is:
+display .6277/.1186577
+* And the p-value is:
+display 2*normal(-.6277/.1186577)
+*******************************************************************

@@ -65,7 +65,7 @@ To view the labels for a variable, use `codebook` or `describe`
 ## Example
 
 ```cpp
-insheet using http://students.washington.edu/chutter/Intro_to_STATA/toy_data.csv, clear
+insheet using toy_data.csv, clear
 
 // Label the variables with a description :
 label variable ht “height (inches)”

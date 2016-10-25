@@ -24,7 +24,7 @@ log using “e:\stataclass\test.smcl”
 log
 
 // Open our toy dataset and summarize the data
-insheet using http://students.washington.edu/chutter/Intro_to_STATA/toy_data.csv, clear
+insheet using toy_data.csv, clear
 sum
 
 // Suspend the recording of your commands in the test.smcl log file:

@@ -1,0 +1,139 @@
+********* Example 9.1 *****************************************
+/* Open the new blood pressure dataset from class webpage 
+(note this is a modification of the blood pressure dataset 
+available from the STATA webpage).*/
+use "http://students.washington.edu/chutter/Intro_to_STATA/bp_long.dta", clear
+* Examine this dataset
+codebook 
+describe
+/* Say you were interested in comparing mean bp values before and after. 
+ As an initial step you could do a two sample unpaired t-test.  */
+ttest bp, by(when)
+/* However, this analysis ignores the fact that there is an 
+underlying structure to the data.  You have two measurements per 
+individual, and those measurements may be correlated.  
+A more appropriate test would be a paired t-test.  
+Reshape the data to have the two bp observations per individual 
+in the same row. */
+reshape wide bp, i(patient) j(when)
+/* Perform the paired t-test.  Note the differences between the paired 
+and unpaired t-tests. */
+ttest bp1=bp2
+* Reshape the data back to long format
+reshape long bp, i(patient) j(when)
+/* Open the long format  dataset from class webpage */
+use "http://students.washington.edu/chutter/Intro_to_STATA/bp_long.dta", clear
+/* Create a string version of status (rather than having a labeled 
+0/1 variable)*/
+decode when, gen(status)
+drop when
+* Reshape the data to wide format.
+reshape wide bp, i(patient) j(status) string
+
+******************************************************************
+
+*****************Example 9.2 **************************************
+* Open the bp3 dataset from class webpage
+use "http://students.washington.edu/chutter/Intro_to_STATA/bp3.dta", clear
+/* Examine this dataset. It include s a 3rd blood pressure measurement 
+for subjects, along with information on their sex, age and a 
+patient number. */
+codebook 
+/* As a demonstration of how one-to-one merging works 
+(note this is an example that purposely does something wrong!).
+Sort on sex, and rename the sex variable sexbp3 */
+sort sex
+rename sex sexbp3
+* set the working drive so that you can save and call on the using file
+cd "f:/stataclass"
+save bp3, replace 
+/* Open the dataset with the first two bp measurements and reshape it 
+into wide format. */
+use "http://students.washington.edu/chutter/Intro_to_STATA/bp_long.dta", clear
+reshape wide bp, i(patient) j(when)
+save bp_wide.dta, replace
+* Perform a one-to-one merge
+merge using bp3
+* Tab the sex variables.
+tab sex sexbp3
+/* Note, there is discordance.  This is because STATA just matched
+ the first observation in the using dataset to the first observation
+ in the master dataset.  It did not care that these observations
+ had different patient numbers.
+The correct way to do this match is to specify a matching variable */
+use bp_wide.dta, clear
+* Perform a match merge
+merge patient using bp3, sort
+tab sex sexbp3
+* Examine the summary information about the merge
+tab _merge
+* Note how many people are missing data on agegroup, and the counts in each group
+codebook agegrp
+
+* Next examine the impact of using update 
+use bp_wide.dta, clear
+* Perform a match merge
+merge patient using bp3, sort update
+tab sex sexbp3
+* Examine the summary information about the merge
+tab _merge
+* Note how many people are missing data on agegroup, and the counts in each group
+codebook agegrp
+
+* Next examine the impact of using replace 
+use bp_wide.dta, clear
+* Perform a match merge
+merge patient using bp3, sort update replace
+tab sex sexbp3
+* Examine the summary information about the merge
+tab _merge
+* Note how many people are missing data on agegroup, and the counts in each group
+codebook agegrp
+/* In this situation we have a disagreement between the master
+ and the using data as to the proper age group for patient 10.  
+You would have to go back to the original data collection mechanism 
+to try to correct this discrepancy. */
+
+* Reshape the data to long format
+reshape long bp, i(patient) j(when)
+*****************************************************************
+
+************Example 9.3 ****************************************
+* Open the bp3 dataset from class webpage
+use "http://students.washington.edu/chutter/Intro_to_STATA/bp3.dta", clear
+* Count the number of observations
+count
+* Append on the second set
+append using "http://students.washington.edu/chutter/Intro_to_STATA/bp3_secondset.dta"
+* Count the number of observations
+count
+*****************************************************************
+
+*****************Example 9.4  ****************************************
+* Set the workind directory
+cd "f:/stataclass"
+* Open the bp3 dataset from class webpage
+use "http://students.washington.edu/chutter/Intro_to_STATA/bp3.dta", clear
+* Append on the second set
+append using "http://students.washington.edu/chutter/Intro_to_STATA/bp3_secondset.dta"
+* Save the combined dataset
+save bp3_all.dta, replace
+* Open the bp_wide dataset (saved in your directory).
+use bp_wide.dta, clear
+* Merge in the bp3_all data (choosing to update, but not replace).
+merge patient using bp3_all.dta, sort unique update
+* Open the second set
+use "http://students.washington.edu/chutter/Intro_to_STATA/bp3_secondset.dta", clear
+save bp3_secondset.dta, replace
+* Open the bp_wide dataset (saved in your directory).
+use bp_wide.dta
+* Merge in the bp3.dta  (choosing to update, but not replace).
+merge patient using bp3.dta, sort unique update
+* Merge in the bp3_secondset data (choosing to update, but not replace.  Note in this case if we didn't use update we wouldn't bring in the bp3 data for any of these subjects). Note also I had to specify a new variable name for the _merge variable, because there now already is a _merge variable in the master datset.
+merge patient using bp3_secondset.dta, sort unique update _merge(secondmerge)
+* Open the bp_wide dataset (saved in your directory).
+use bp_wide.dta, clear
+/* Merge in both the bp3.dta and the bp3_secondset.dta files 
+at the same time (in this case you can't use update).*/
+merge patient using bp3 bp3_secondset.dta, sort unique 
+******************************************************************

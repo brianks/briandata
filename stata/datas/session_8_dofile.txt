@@ -1,0 +1,112 @@
+***************** Exercise 8.1: ***************** 
+* Open the auto dataset from STATA website
+webuse auto, clear
+* Examine the dataset and variables in the dataset
+describe
+codebook
+* Create a scatter plot of miles per gallon vs log(weight)
+scatter mpg weight, scheme(s1mono)
+* Generate the same graph, but with a fitted line
+scatter mpg weight || lfit mpg weight, scheme(s1mono)
+* Perform linear regression 
+regress mpg weight
+*************************************************
+
+***************** Exercise 8.2: ***************** 
+* Open the auto dataset from STATA website
+webuse auto, clear
+* Compare regression with a dichotomous grouping variable to a t-test
+regress mpg foreign
+ttest mpg, by(foreign)
+*************************************************
+
+***************** Exercise 8.3: ***************** 
+* Open the toy dataset from the class website
+insheet using "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.csv", clear
+/* Generate a new variable called sysavg that takes the average of the three 
+systolic blood pressure values for each person. */
+egen sysavg=rowmean(sys1 sys2 sys3)
+/* Use logistic regression to examine the relationship between average 
+systolic blood pressure and case control status */
+logistic case sysavg
+logit case sysavg
+display exp(0.0319222)
+* Generate an indicator variable for high blood pressure (>=140)
+recode sysavg min/140=0 140/max=1, gen(highbp)
+/* Use logistic regression to examine the relationship between high blood pressure 
+and case control status, compare results to what you get using cc command. */
+logistic case highbp
+cc case highbp
+*************************************************
+
+***************** Exercise 8.4: ***************** 
+* Open the drug treatment dataset from STATA website
+webuse drugtr, clear
+* stset the data
+stset studytime, failure(died)
+/* Use cox proportional hazard regression to examine the association between 
+age and death in this dataset.*/
+stcox age
+*************************************************
+
+***************** Exercise 8.5: ***************** 
+* Open the drug treatment dataset from STATA website
+webuse drugtr, clear
+* Generate a categorical variable for 10 year age categories
+egen tenyrage=cut(age), at(45 55 65 75) label
+* Generate indicator variables for 10 year age categories
+tabulate tenyrage, gen(tenyr)
+* Run stcox comparing age year categories, using the youngest category as the reference
+stcox tenyr2 tenyr3 
+* Run stcox comparing age year categories, using the youngest category as the reference and the xi command
+xi: stcox i.tenyrage 
+* Run stcox comparing age year categories, using the oldest category as the reference and the xi command
+char tenyrage[omit] 2
+xi: stcox i.tenyrage 
+*************************************************
+
+***************** Exercise 8.6: ***************** 
+* Open the auto dataset from STATA website
+webuse auto, clear
+* Run the regression model
+regress mpg weight
+* Estimate the expected difference in mean mpg for cars that differ by 500 lbs 
+lincom 500*weight
+* Calculate the expected mpg for a 1995 Infinity G20 (according to wikipedia, my car weighs ~2600 lbs).
+lincom _cons+ 2600 *weight
+*************************************************
+
+***************** Exercise 8.7: ***************** 
+* Open the drug treatment dataset from STATA website
+webuse drugtr, clear
+* Run cox regression on age
+stcox age
+* Calcluate the hazard ratio associated with a 10 year increase in age (note impact of using option , hr).
+lincom 10*age
+lincom 10*age, hr
+*************************************************
+
+***************** Exercise 8.8: ***************** 
+* Open the drug treatment dataset from STATA website
+webuse drugtr, clear
+* Generate a categorical variable for 10 year age categories
+egen tenyrage=cut(age), at(45 55 65 75)
+* Generate indicator variables for 10 year age categories
+quietly tabulate tenyrage, gen(tenyr)
+* note use of "quietly" stopped stata from putting the table output in the results window
+/* Run stcox comparing age year categories, using the youngest category as the reference 
+and the xi command and adjusting for whether or not people were on drug */
+xi: stcox i.tenyrage drug
+/* Perform a test to see whether or not age is associated with survival 
+(i.e. test whether the beta coefficients for the two dummy variables 
+representing age are equal to zero). */
+test _Itenyrage_55 _Itenyrage_65
+/* Perform a likelihood ratio test to see whether or not age 
+is associated with survival (i.e. test whether the data is better 
+explained by a model that includes both age and drug, or if a model 
+that only includes drug is sufficient) */
+xi: stcox i.tenyrage drug
+estimates store full
+stcox drug
+lrtest full .
+*************************************************

@@ -1,0 +1,51 @@
+/* Do the following using STATA:
+(try to do these exercises on your own.  If you get stuck, a list of commands 
+showing one way to do each of these is included in the file
+http://students.washington.edu/chutter/Intro_to_STATA/review_session8_dofile.txt) */
+
+* 1. Set your default directory
+cd e:/stataclass
+
+* 2. Start a log file (have it be a text file, rather than a .smcl file)
+capture log close
+log using review_session8.log, replace
+
+* 3. Open a new do file, and type command in the do file, rather than on the command line.
+* 4. Open the new_toy_data dataset
+insheet using "http://students.washington.edu/chutter/Intro_to_STATA/new_toy_data.csv", clear
+
+/* 5. Generate a new variable called sysavg that takes the average of the three systolic blood pressure 
+values for each person. */
+egen sysavg=rowmean(sys1 sys2 sys3)
+
+/* 6. Generate a new variable called highbp that is an indicator variable 
+with the value 0 if sysavg<140 and 1 if sysavg>=140. */
+recode sysavg min/140=0 140/max=1, gen(highbp)
+
+* 7. Label the variable highbp and the values of the variable highbp.
+label variable highbp "Indicator of average systolic blood pressure >=140"
+label define highbp_lab 0 "<140" 1 ">=140"
+label values highbp highbp_lab
+
+/* 8. Assume this data came from a case control study.  Find the odds ratio 
+for the association between high blood pressure and case status. */
+cc case highbp
+
+* 9. What is the PAR% for the association between high blood pressure and case status.
+cc case highbp
+* note, Stata labels the PAR% as " Attr. frac. pop"  
+
+/* 10. The following table is from page 230 of Koepsell and Weiss:
+
+Exposure	Cases	Controls	Odds Ratio
+Yes	150	75	
+			3.0
+No	150	225	
+	300	300	
+Use STATA to confirm that the odds ratio of 3.0 is correct. */
+cci 150 150 75 225
+
+* 11. Close your log
+log close
+
+

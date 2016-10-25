@@ -1,0 +1,145 @@
+************Example 10.1 ********************************
+* Open the low birthweight dataset from the Stata webpage
+webuse lbw, clear
+* Examine the data
+describe
+codebook
+* Calculate the "crude" (unadjusted) OR for the relationship between smoking and low birthweight.
+cc low smoke
+* Examine relationship between race and smoking in controls
+tab smoke race if low==0, col
+* Examine the relationship between race and lbw
+tab low race, col
+/* Perform stratified analysis to examine relationship between 
+smoking and low birthweight adjusting for race */
+cc low smoke, by(race)
+
+/* Perform stratified analysis to examine relationship between 
+smoking and low birthweight adjusting for race and 
+whether woman made any visits to physician during 1st trimester
+Generate indicator that woman has had one or more visits to 
+physician during 1st trimester */
+recode ftv 1/max=1, gen(anyftv)
+label variable anyftv "indicator of one or more visits to physician during 1st trimester"
+mhodds low smoke, by(race anyftv)
+
+/* Calculate the "crude" (unadjusted) OR for the relationship
+between each additional previous premature births and low birthweight 
+in the current pregnancy.*/
+mhodds low ptl
+* Examine same adjusting for race
+mhodds low ptl, by(race)
+
+/*Calculate the "crude" (unadjusted) OR for the relationship 
+between race and low birthweight.*/
+tabodds low race, or
+* Examine same adjusting for whether the mother was over 25
+* Generate a new variable that indicates whether a woman is over 25
+recode age min/25=0 25/max=1, gen(over25)
+label variable over25 "Indicator that mothers age was 25 or older"
+capture label drop over25_label
+label define over25_label 0 "under 25" 1 "25 and over)
+label values over25 over25_label 
+tabodds low race, or adjust(over25)
+* Focus only on the comparison of black women to white women
+codebook race
+mhodds low race, by(over25) compare(2, 1)
+
+****************************************************************
+
+************ Example 10.2 **************************************
+* Open the low birthweight dataset from the Stata webpage
+webuse lbw, clear
+/* Perform stratified analysis to examine relationship between 
+smoking and low birthweight adjusting for race using epitab commands */
+cc low smoke, by(race)
+/* Perform same analysis using regression (note use of the "xi:"  
+command since race is an unordered categorical variable. 
+For a review of xi: see section 32.2 (session 8)) */
+xi: logistic low smoke i.race
+****************************************************************
+
+************ Example 10.3 **************************************
+* Open the low birthweight dataset from the Stata webpage
+webuse lbw, clear
+/* Perform analysis for the relationship between 
+low birthweight and smoking stratifying on a third variable 
+using the following stratifying variables:
+Race, history of hypertension, presence of uterine irritability,
+ indicator that mother saw physician in first trimester, 
+maternal age (under 25 vs 25 and over), and 
+maternal weight (strata defined by quartiles of weight distribution). */
+* First we need to create some new variables:
+recode ftv 1/max=1, gen(anyftv)
+label variable anyftv "indicator that mother saw physician in 1st trimester"
+recode age min/25=0 25/max=1, gen(over25)
+label variable over25 "Indicator that mothers age was 25 or older"
+label define over25_label 0 "under 25" 1 "25 and over)
+label values over25 over25_label
+xtile wtcat=lwt, nq(4)
+label variable wtcat "quartiles of maternal weight"
+/* Next we will open a log and set more off 
+(if we don't set more off we will have to keep hitting 
+return once we execute the loop) */
+capture log close
+log using adjusted_analysis.log, replace
+set more off
+* Finally we set up the loop over the appropriate variables
+foreach var of varlist race ht ui anyftv over25 wtcat {
+	cc low smoke, by(`var')
+	}
+****************************************************************
+
+************ Example 10.4 **************************************
+
+* We will start with a simple example and have Stata "count" from 1 to 5. 
+local x=1
+while `x'<=5 {
+	display "`x'"
+	local x=`x'+1
+	}
+/* Next, generate a dataset with 100 observations, and five variables
+ each of which has a uniform distribution. */
+clear
+set obs 100
+local x=1
+while `x'<=5 {
+	gen uniform`x'=uniform()
+	local x=`x'+1
+	}
+
+/* As a more practical example, in session 7 we looked at power 
+calculations where we varied the sample size. */
+sampsi 120 100, sd1(20) sd2(25) n1(10) n2(10)
+sampsi 120 100, sd1(20) sd2(25) n1(20) n2(20)
+sampsi 120 100, sd1(20) sd2(25) n1(30) n2(30)
+
+/* Suppose I wanted to have the sample size range from 10 to 100, 
+I could write the command out as above 10 times, 
+or I could set up a loop using while */
+local n=10
+while `n'<=100 {
+sampsi 120 100, sd1(20) sd2(25) n1(`n') n2(`n')
+local n=`n'+10
+}
+
+/* Note that this produces a lot of output that I don't want.  
+I can be more sophisticated and use quietly, display and return 
+functions to only get the output I want. */
+local n=10
+while `n'<=100 {
+quietly sampsi 120 100, sd1(20) sd2(25) n1(`n') n2(`n')
+display  "For sample size of `n' power is " r(power)
+local n=`n'+10
+}
+* I can format the output and put the power on a different line
+local n=10
+while `n'<=100 {
+quietly sampsi 120 100, sd1(20) sd2(25) n1(`n') n2(`n')
+display  as text "Sample size of `n' in each group" 
+display as text "power =" as result %9.2f r(power)
+display "" // this puts a blank line in each loop
+local n=`n'+10
+}
+
+****************************************************************

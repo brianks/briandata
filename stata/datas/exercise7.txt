@@ -1,0 +1,50 @@
+/* Exercise:
+Do the following using STATA:
+(try to do these exercises on your own.  If you get stuck, a list of commands showing one way to do each of these is included in the file
+http://students.washington.edu/chutter/Intro_to_STATA/review_session9_dofile.txt)
+*/
+
+*1. Set your default directory
+cd f:/stataclass
+
+* 2. Start a log file (have it be a text file, rather than a .smcl file)
+capture log close
+log using session9_review.log, replace
+
+/* 3. Open a new do file, and type command in the do file, rather 
+than on the command line.*/
+
+* 4. Open the auto dataset from STATA website
+webuse auto, clear
+* 5. Create a scatter plot of car weight vs length 
+scatter weight length, scheme(s1mono)
+
+* 6. Generate the same graph, but superimpose a fitted line
+scatter weight length || lfit weight length, scheme(s1mono)
+
+/* 7. Perform linear regression to compare the relationship between 
+weight (as outcome variable) and length (as predictor variable) */
+regress weight length
+
+/* 8. Perform linear regression to compare the relationship between 
+weight (as outcome variable) and the dichotomous variable foreign 
+(as predictor variable).  Compare these results to those of a 
+t-test comparing the mean weight of domestic and foreign cars. */
+regress weight foreign
+ttest weight, by(foreign)
+/* 9. Generate a new variable called "heavycar" that takes 
+the value of 0 for cars that are less than the median weight 
+of cars in the dataset and 1 for cars that are the median 
+weight or heavier.  Label this variable and values of this variable. */
+sum weight, detail
+gen heavycar=0 if weight<r(p50)
+replace heavycar=1 if weight>=r(p50)
+label variable heavycar "Indicator that car is above median weight"
+label define heavy_lab 0 "less than median weight" 1 "at or above median weight"
+label values heavycar heavy_lab
+/* 10. Perform logistic regression to compare the relationship
+ between the variable heavycar (as outcome variable) and the 
+dichotomous variable foreign (as predictor variable).  
+Compare these results to the odds ratio obtained using the cc command.*/
+logistic heavycar foreign
+cc heavycar foreign

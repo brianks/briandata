@@ -1,0 +1,62 @@
+*  http://students.washington.edu/chutter/Intro_to_STATA/review_session7_dofile.txt * 
+* do file for review exercises at start of session 7
+
+* 1. Set your default directory
+* cd e:/stataclass
+
+* 2. Start a log file (have it be a text file, rather than a smcl file) 
+capture log close
+log using session7_review.txt, text replace
+
+* 3. Open the dataset drugtr from the stata website
+webuse drugtr, clear
+
+/* 4. Open a new do file, and type commands in the do file, 
+	rather than on the command line.
+Use control +8, icon or drop down menu to open a do file */
+
+*5. Generate a new variable called "over55" that has the value 0 for people 55 and under, and the value 1 for people over 55.
+recode age 55/max=1 min/55=0, gen(over55)
+/* note: this recode will have people aged 55 with the value 0, if I had
+instead used
+recode min/55=0 age 55/max=1 , gen(over55)
+then people who were exactly 55 would have the value 1. */
+
+* 6. Label this variable and values of this variable.
+label variable over55 "Indicator that people are over 55 years of age"
+label define over55lab 0 "<=55" 1 ">55"
+label values over55 over55lab
+* 7. make sure Stata knows that this is survival data with time=studytime and failure=died
+stset studytime, failure(died)
+* 8. Estimate the median survival time for each of the following groups:
+* a) all people over 55
+stci if over55==1
+* b) all people over 55 and on drug
+stci if over55==1 & drug==1
+* c) all people over 55 and on placebo
+stci if over55==1 & drug==0
+
+* 9. Summarize the estimated one year survival rates for people over 55 and people 55 or under.
+sts list, at(12 24) by(over55)
+/* note, I was only interested in the value of sts list at 12 months, but
+I added the 24 so that Stata would give me the value at 12 months, rather
+than in 12 groups */
+
+* 10. Graph the survival function, with confidence intervals for groups defined by over55
+* option 1: both curves on the same graph
+sts graph, by(over55) ci scheme(s1mono) 
+* option 2: curves on separate pannels (choses so I could get rid of the fill color)
+sts graph, by(over55) ci scheme(s1mono) ciopts(fcolor(none)) separate byopts(note(" "))
+* note use of byopts(note(" ")) overrides the default note made by Stata
+
+* 11. Graph the survival function, without confidence intervals for groups defined by the combination of over55 and drug.
+sts graph, by(over55 drug) scheme(s1color)
+
+* 12. Do a log rank test to compare survival for people over55 vs people under55.
+sts test over55
+
+* 13. Repeat 11, but restrict analysis to people taking the drug.
+sts test over55 if drug==1
+
+* 14. Close your log.
+capture log close

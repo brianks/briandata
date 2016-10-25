@@ -10,5 +10,5 @@ save fev.dta
 If `fev.dta` already existed and you wanted to replace it with a new data version:
 
 ```cpp
-save e:/stataclass/fev.dta, replace
+save "e:/stataclass/fev.dta", replace
 ```
