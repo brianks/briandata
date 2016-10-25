@@ -70,11 +70,11 @@ If you have a dataset in Excel, you can save it as a csv.  Simply chose **CSV (C
 
 We can import csv files by using the **Import** submenu under the File menu. We’ll select **ASCII data created by a spreadsheet** under the **Import** submenu.
 
-![](https://raw.githubusercontent.com/mkrikson/mkrikson.github.io/master/intro/img/import_pointclick-1.jpg)
+![](https://raw.githubusercontent.com/brianks/briandata/master/stata/img/import_pointclick-1.jpg)
 
 This will open the following dialog menu.
 
-![](https://raw.githubusercontent.com/mkrikson/mkrikson.github.io/master/intro/img/insheet-Import-ASCII-data.jpg)
+![](https://raw.githubusercontent.com/brianks/briandata/master/stata/img/insheet-Import-ASCII-data.jpg)
 
 Click on **Browse** to select the csv file saved on your computer. Select **Comma-delimited data**. I’ve also selected **Replace data in memory** to clear out any data loaded into Stata already. If you need to add variable names, you can add them in the dialog box.
 
@@ -97,13 +97,13 @@ Example show you that v1 is a string up to 7 characters long, the other variable
 
 Here we will use Stata File Menu. A short-cut would be to use the toolbar : **File** --> **Import** --> (select the type of data to import).
 
-![](https://raw.githubusercontent.com/mkrikson/mkrikson.github.io/master/intro/img/stata02filemenu.gif)
+![](https://raw.githubusercontent.com/brianks/briandata/master/stata/img/stata02filemenu.gif)
 
 Click on **Open** and browse to the appropriate directory (here the data were in a subdirectory called stata) 
 
-![](https://raw.githubusercontent.com/mkrikson/mkrikson.github.io/master/intro/img/stata03fileopen.gif)
+![](https://raw.githubusercontent.com/brianks/briandata/master/stata/img/stata03fileopen.gif)
 
 Then click on **Open**. We obtain:
 
-![](https://raw.githubusercontent.com/mkrikson/mkrikson.github.io/master/intro/img/stata04fileopen.gif)
+![](https://raw.githubusercontent.com/brianks/briandata/master/stata/img/stata04fileopen.gif)
 

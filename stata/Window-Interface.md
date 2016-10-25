@@ -1,6 +1,6 @@
 After following the previous instructions, the Stata program should be up and running. You will notice that Stata is made up of the following components:
 
-![](https://raw.githubusercontent.com/mkrikson/mkrikson.github.io/master/intro/img/stata14.png)
+![](https://raw.githubusercontent.com/brianks/briandata/master/stata/img/stata14.png)
 
 ### Dropdown windows
 Provides options for performing tasks
