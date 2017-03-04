@@ -2,7 +2,7 @@ First, you have to run the installation
 
 After you have launched Install Stata, you will be greeted with the following screen. Read the Stata requirements to confirm that your hardware and system is compatible with Stata.
 
-<div>![](https://www.stata.com/install-guide/i/1_Introduction.png)</div>
+![](https://www.stata.com/install-guide/i/1_Introduction.png)
 
 Click on **Continue**.
 
